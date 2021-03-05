@@ -1,0 +1,29 @@
+name: Test Verification
+
+on: 
+  push:
+    branches: 
+     - master
+jobs:
+  build-windows:
+    name: Build and Test
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: shogo82148/actions-setup-perl@v1
+      with:
+        perl-version: '5.30'
+        distribution: strawberry
+    - uses: microsoft/setup-msbuild@v1.0.2
+      with:
+        vs-version: '16.4'
+    - name: Install Deps
+      run: choco install wget golang yasm
+    - name: Install Qt
+      run: |
+        wget -q https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe -O ./qt-unified-windows-x86-online.exe
+        ./qt-unified-windows-x86-online.exe --script ./qt_installer.qs -d
+    - name: Init submodules
+      run: git submodule update --init --recursive
+    - name: Try cmake
+      run: cmake --version
